@@ -86,9 +86,8 @@ func (f *ForecastDayItem) String() string {
 func (api *WeatherApi) buildRequest(city string) (*http.Request, error) {
 
 	config := api.Config
-	req, err := http.NewRequest(http.MethodGet, config.Url, nil)
 
-	if err == nil {
+	if req, err := http.NewRequest(http.MethodGet, config.Url, nil); err == nil {
 
 		q := req.URL.Query()
 
@@ -98,9 +97,9 @@ func (api *WeatherApi) buildRequest(city string) (*http.Request, error) {
 		req.URL.RawQuery = q.Encode()
 
 		return req, nil
+	} else {
+		return nil, err
 	}
-
-	return nil, &cmd.TextError{Text: err.Error()}
 }
 
 func MapModel(src *Forecast) *models.Weather {

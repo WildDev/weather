@@ -25,9 +25,7 @@ func (service *WeatherService) Destroy() {
 
 func (service *WeatherService) Now(country string, city string) (*models.Weather, error) {
 
-	r, r_err := service.Dao.FindTopByCountryAndCityOrderByTimestamp(country, city)
-
-	if r_err == nil {
+	if r, r_err := service.Dao.FindTopByCountryAndCityOrderByTimestamp(country, city); r_err == nil {
 
 		now := time.Now().UTC()
 		b, b_err := cmd.Forward(&now, service.Config.CacheTimeout)

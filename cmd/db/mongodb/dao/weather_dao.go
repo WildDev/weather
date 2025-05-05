@@ -1,7 +1,6 @@
 package dao
 
 import (
-	"app/cmd"
 	"app/cmd/db/mongodb"
 	"app/cmd/db/mongodb/doc"
 	"app/cmd/db/mongodb/mappers"
@@ -52,15 +51,13 @@ func (dao *WeatherDao) Add(item models.Weather) (*models.Weather, error) {
 
 	if d, d_err := mappers.MapDoc(&item); d_err == nil {
 
-		r, err := dao.Conn.Ref().Collection(collection).InsertOne(context.TODO(), d)
-
-		if err == nil {
+		if r, r_err := dao.Conn.Ref().Collection(collection).InsertOne(context.TODO(), d); r_err == nil {
 
 			item.Id = r.InsertedID.(bson.ObjectID).Hex()
 			return &item, nil
+		} else {
+			return nil, r_err
 		}
-
-		return nil, &cmd.TextError{Text: err.Error()}
 	} else {
 		return nil, d_err
 	}

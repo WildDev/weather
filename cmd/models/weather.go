@@ -21,7 +21,6 @@ type Weather struct {
 }
 
 func (w *Weather) String() string {
-
 	return fmt.Sprintf("Id=%s Country=%s City=%s ValueC=%d MinValueC=%d MaxValueC=%d ValueF=%d MinValueF=%d MaxValueF=%d Timestamp=%v LastUpdated=%v Stale=%v",
 		w.Id, w.Country, w.City, w.ValueC, w.MinValueC, w.MaxValueC, w.ValueF, w.MinValueF, w.MaxValueF, *w.Timestamp, *w.LastUpdated, w.Stale)
 }

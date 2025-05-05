@@ -29,17 +29,17 @@ func (c *MongoConn) Ref() *mongo.Database {
 func (c *MongoConn) Connect() {
 
 	config := c.Config
-	client, err := mongo.Connect(options.Client().ApplyURI(config.Uri))
 
-	if err == nil {
+	if client, err := mongo.Connect(options.Client().ApplyURI(config.Uri)); err == nil {
 
 		c.Client = client
 		log.Println("MongoDB connection ready")
 
 		return
-	}
 
-	log.Fatal("Failed to connect", err)
+	} else {
+		log.Fatal("Failed to connect", err)
+	}
 }
 
 func (c *MongoConn) Disconnect() {

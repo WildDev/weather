@@ -5,7 +5,7 @@ import (
 	"app/cmd/api/weatherapi"
 	"app/cmd/db/mongodb"
 	"app/cmd/db/mongodb/dao"
-	"app/cmd/rest"
+	"app/cmd/rest/endpoints"
 	"app/cmd/services"
 	"log"
 
@@ -24,7 +24,7 @@ func initMongoConn(config *cmd.Config) *mongodb.MongoConn {
 	}
 }
 
-func configureAndStart(config *cmd.Config, endpoint *rest.WeatherEndpoint) {
+func configureAndStart(config *cmd.Config, endpoint *endpoints.WeatherEndpoint) {
 
 	host := config.HostBinding
 	router := gin.Default()
@@ -52,7 +52,7 @@ func main() {
 	dao := &dao.WeatherDao{Conn: conn}
 	api := &weatherapi.WeatherApi{Config: config.Api}
 	service := &services.WeatherService{Config: &config, Api: api, Dao: dao}
-	endpoint := &rest.WeatherEndpoint{Service: service}
+	endpoint := &endpoints.WeatherEndpoint{Service: service}
 
 	ctx.Add(conn)
 	ctx.Add(dao)
