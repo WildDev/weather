@@ -19,21 +19,28 @@ curl "https://test.website/now?country=Spain&city=Ibiza" -v
 < Content-Type: application/json
 <
 {
-    "ValueC": 19,
-    "MinValueC": 17,
-    "MaxValueC": 20,
-    "ValueF": 66,
-    "MinValueF": 64,
-    "MaxValueF": 69,
-    "Stale": false,
-    "LastUpdated":"2025-05-05T10:00:00Z"
+    // Celsius
+    "c": {
+        "max": 17,
+        "min": 16,
+        "val": 18
+    },
+    
+    // Fahrenheit
+    "f": {
+        "max": 63,
+        "min": 60,
+        "val": 64
+    },
+
+    //
+    "stale": false,
+    "updated": "2025-05-06T17:15:00Z"
 }
 ```
 
-Property names suffixed with the `C` or `F` are the ones provided in Celsius or in Fahrenheit respectively.
-
 > [!NOTE]
-> If there was no connection between this and 3d-party services for long time, then `Stale` flag is set to `true` and the last known weather value is returned.
+> If there was no connection between this and 3d-party services for long time, then `stale` flag is set to `true` and the last known weather value is returned.
 
 ### Get started
 
