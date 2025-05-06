@@ -45,12 +45,16 @@ func (e *WeatherEndpoint) Now(c *gin.Context) {
 
 	if w, w_err := e.Service.Now(country, city); w_err == nil {
 		c.JSON(http.StatusOK, gin.H{
-			"ValueC":      w.ValueC,
-			"MinValueC":   w.MinValueC,
-			"MaxValueC":   w.MaxValueC,
-			"ValueF":      w.ValueF,
-			"MinValueF":   w.MinValueF,
-			"MaxValueF":   w.MaxValueF,
+			"c": gin.H{
+				"val": w.ValueC,
+				"min": w.MinValueC,
+				"max": w.MaxValueC,
+			},
+			"f": gin.H{
+				"val": w.ValueF,
+				"min": w.MinValueF,
+				"max": w.MaxValueF,
+			},
 			"LastUpdated": w.LastUpdated,
 			"Stale":       w.Stale,
 		})
