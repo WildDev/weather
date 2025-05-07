@@ -21,5 +21,7 @@ jobs:
     - name: Build & Push
       uses: docker/build-push-action@v6.16.0
       with:
-        tags: wilddev/weather:${{ github.ref_name }}
+        tags: |
+          wilddev/weather:${{ github.ref_name }}
+          wilddev/weather:latest
         push: true
