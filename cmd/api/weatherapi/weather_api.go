@@ -83,7 +83,11 @@ func (f *ForecastDayItem) String() string {
 	return fmt.Sprintf("Day=(%v)", f.Day)
 }
 
-func (api *WeatherApi) buildRequest(city string) (*http.Request, error) {
+func (api *WeatherApi) buildQueryString(country string, city string) string {
+	return fmt.Sprintf("%s,%s", city, country)
+}
+
+func (api *WeatherApi) buildRequest(country string, city string) (*http.Request, error) {
 
 	config := api.Config
 
@@ -92,7 +96,7 @@ func (api *WeatherApi) buildRequest(city string) (*http.Request, error) {
 		q := req.URL.Query()
 
 		q.Add("key", config.SecretKey)
-		q.Add("q", city)
+		q.Add("q", api.buildQueryString(country, city))
 
 		req.URL.RawQuery = q.Encode()
 
@@ -125,9 +129,9 @@ func MapModel(src *Forecast) *models.Weather {
 	}
 }
 
-func (api *WeatherApi) GetForecast(city string) (*models.Weather, error) {
+func (api *WeatherApi) GetForecast(country string, city string) (*models.Weather, error) {
 
-	if req_str, req_str_err := api.buildRequest(city); req_str_err == nil {
+	if req_str, req_str_err := api.buildRequest(country, city); req_str_err == nil {
 
 		if req, req_err := (&http.Client{}).Do(req_str); req_err == nil {
 
