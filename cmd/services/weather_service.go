@@ -33,7 +33,7 @@ func (service *WeatherService) Now(country string, city string) (*models.Weather
 		if b_err == nil {
 			if r == nil || r.Timestamp.Before(*b) {
 
-				if f, f_err := service.Api.GetForecast(city); f_err == nil {
+				if f, f_err := service.Api.GetForecast(country, city); f_err == nil {
 
 					if r != nil && r.LastUpdated.Compare(*f.LastUpdated) >= 0 {
 						return r, nil
