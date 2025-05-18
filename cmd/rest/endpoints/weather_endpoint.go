@@ -12,8 +12,6 @@ type WeatherEndpoint struct {
 	Service *services.WeatherService
 }
 
-const country_param, city_param = "country", "city"
-
 func (w *WeatherEndpoint) Init() {
 
 }
