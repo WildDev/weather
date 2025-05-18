@@ -6,45 +6,50 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"log"
 	"net/http"
 	"time"
 )
 
-type Location struct {
+type Weather struct {
+	Location *WeatherLocation     `json:"location"`
+	Current  *WeatherNow          `json:"current"`
+	Forecast *WeatherForecastNode `json:"forecast"`
+}
+
+type WeatherLocation struct {
 	Country string `json:"country"`
 	City    string `json:"name"`
 }
 
-type Condition struct {
+type WeatherCondition struct {
+	Code int    `json:"code"`
 	Text string `json:"text"`
 }
 
-type Current struct {
-	TempC            float32    `json:"temp_c"`
-	TempF            float32    `json:"temp_f"`
-	LastUpdatedEpoch int64      `json:"last_updated_epoch"`
-	Condition        *Condition `json:"condition"`
+type WeatherNow struct {
+	TempC            float32           `json:"temp_c"`
+	TempF            float32           `json:"temp_f"`
+	LastUpdatedEpoch int64             `json:"last_updated_epoch"`
+	Condition        *WeatherCondition `json:"condition"`
 }
 
-type ForecastRecord struct {
-	ForecastDay []ForecastDayItem `json:"forecastday"`
+type WeatherForecastDay struct {
+	MinTempC  float64           `json:"mintemp_c"`
+	MaxTempC  float64           `json:"maxtemp_c"`
+	MinTempF  float64           `json:"mintemp_f"`
+	MaxTempF  float64           `json:"maxtemp_f"`
+	Condition *WeatherCondition `json:"condition"`
 }
 
-type Forecast struct {
-	Location *Location       `json:"location"`
-	Current  *Current        `json:"current"`
-	Forecast *ForecastRecord `json:"forecast"`
+type WeatherForecast struct {
+	Date      string              `json:"date"`
+	DateEpoch int64               `json:"date_epoch"`
+	Day       *WeatherForecastDay `json:"day"`
 }
 
-type ForecastDay struct {
-	MinTempC float64 `json:"mintemp_c"`
-	MinTempF float64 `json:"mintemp_f"`
-	MaxTempC float64 `json:"maxtemp_c"`
-	MaxTempF float64 `json:"maxtemp_f"`
-}
-
-type ForecastDayItem struct {
-	Day *ForecastDay `json:"day"`
+type WeatherForecastNode struct {
+	ForecastDay []*WeatherForecast `json:"forecastday"`
 }
 
 type WeatherApi struct {
@@ -59,28 +64,32 @@ func (w *WeatherApi) Destroy() {
 
 }
 
-func (c *Condition) String() string {
-	return fmt.Sprintf("Text=%s", c.Text)
+func (w *Weather) String() string {
+	return fmt.Sprintf("Location=%v Current=%v Forecast=%v", *w.Location, *w.Current, *w.Forecast)
 }
 
-func (c *Current) String() string {
-	return fmt.Sprintf("TempC=%v TempF=%v LastUpdatedEpoch=%v Condition=(%v)", c.TempC, c.TempF, c.LastUpdatedEpoch, c.Condition)
+func (w *WeatherLocation) String() string {
+	return fmt.Sprintf("Country=%s City=%s", w.Country, w.City)
 }
 
-func (f *ForecastRecord) String() string {
-	return fmt.Sprintf("ForecastDay=%v", f.ForecastDay)
+func (w *WeatherCondition) String() string {
+	return fmt.Sprintf("Code=%d Text=%s", w.Code, w.Text)
 }
 
-func (f *Forecast) String() string {
-	return fmt.Sprintf("Current=(%v) Forecast=(%v)", f.Current, f.Forecast)
+func (w *WeatherNow) String() string {
+	return fmt.Sprintf("TempC=%f TempF=%f LastUpdatedEpoch=%v Condition=%v", w.TempC, w.TempF, w.LastUpdatedEpoch, *w.Condition)
 }
 
-func (f *ForecastDay) String() string {
-	return fmt.Sprintf("MinTempC=%v MinTempF=%v MaxTempC=%v MaxTempF=%v", f.MinTempC, f.MinTempF, f.MaxTempC, f.MaxTempF)
+func (w *WeatherForecastDay) String() string {
+	return fmt.Sprintf("MinTempC=%f MaxTempC=%f MinTempF=%f MaxTempF=%f Condition=%v", w.MinTempC, w.MinTempF, w.MaxTempC, w.MaxTempF, *w.Condition)
 }
 
-func (f *ForecastDayItem) String() string {
-	return fmt.Sprintf("Day=(%v)", f.Day)
+func (w *WeatherForecast) String() string {
+	return fmt.Sprintf("Date=%s DateEpoch=%d Day=%v", w.Date, w.DateEpoch, *w.Day)
+}
+
+func (w *WeatherForecastNode) String() string {
+	return fmt.Sprintf("ForecastDay=%v", w.ForecastDay)
 }
 
 func (api *WeatherApi) buildQueryString(country string, city string) string {
@@ -106,11 +115,93 @@ func (api *WeatherApi) buildRequest(country string, city string) (*http.Request,
 	}
 }
 
-func MapModel(src *Forecast) *models.Weather {
+func mapConditionCode(code int) string {
+
+	switch code {
+
+	case 1000:
+		return "clear"
+	case 1003, 1006:
+		return "partial-sun"
+	case 1009:
+		return "clouds"
+	case 1030, 1135:
+		return "fog"
+	case 1150, 1153:
+		return "drizzle"
+	case 1072, 1147, 1168:
+		return "freezing-drizzle"
+	case 1171:
+		return "heavy-freezing-drizzle"
+	case 1063, 1180, 1186, 1192:
+		return "partial-rain"
+	case 1183, 1189, 1195:
+		return "rain"
+	case 1240, 1243, 1246:
+		return "shower"
+	case 1087:
+		return "storm"
+	case 1273, 1276:
+		return "rain-storm"
+	case 1069, 1198, 1204, 1237, 1249, 1261:
+		return "freezing-rain"
+	case 1201, 1207, 1252, 1264:
+		return "heavy-freezing-rain"
+	case 1066, 1210, 1216, 1222:
+		return "partial-snow"
+	case 1213, 1219, 1225, 1255:
+		return "snow"
+	case 1114, 1117, 1258:
+		return "blizzard"
+	case 1279, 1282:
+		return "snow-storm"
+	default:
+		log.Println("Unmapped condition code", code)
+		return ""
+	}
+}
+
+func mapWeatherNow(src *WeatherNow) *models.WeatherNow {
+	return &models.WeatherNow{
+		ValueC:    int(src.TempC),
+		ValueF:    int(src.TempF),
+		Condition: mapConditionCode(src.Condition.Code),
+	}
+}
+
+func mapWeatherForecastDay(src *WeatherForecastDay) *models.WeatherForecastDay {
+	return &models.WeatherForecastDay{
+		MinValueC: int(src.MinTempC),
+		MaxValueC: int(src.MaxTempC),
+		MinValueF: int(src.MinTempF),
+		MaxValueF: int(src.MaxTempF),
+		Condition: mapConditionCode(src.Condition.Code),
+	}
+}
+
+func mapWeatherForecast(src *WeatherForecast) *models.WeatherForecast {
+	return &models.WeatherForecast{
+		Date:      src.Date,
+		DateEpoch: src.DateEpoch,
+		Day:       mapWeatherForecastDay(src.Day),
+	}
+}
+
+func mapWeatherForecastArray(src []*WeatherForecast) []*models.WeatherForecast {
+
+	r := make([]*models.WeatherForecast, len(src))
+
+	for i, p := range src {
+		r[i] = mapWeatherForecast(p)
+	}
+
+	return r
+}
+
+func mapWeather(src *Weather) *models.Weather {
 
 	l := src.Location
 	c := src.Current
-	f := src.Forecast.ForecastDay[0].Day
 
 	timestamp := time.Now()
 	lastUpdated := cmd.EpochToTime(c.LastUpdatedEpoch)
@@ -118,12 +209,8 @@ func MapModel(src *Forecast) *models.Weather {
 	return &models.Weather{
 		Country:     l.Country,
 		City:        l.City,
-		ValueC:      int(c.TempC),
-		MinValueC:   int(f.MinTempC),
-		MaxValueC:   int(f.MaxTempC),
-		ValueF:      int(c.TempF),
-		MinValueF:   int(f.MinTempF),
-		MaxValueF:   int(f.MaxTempF),
+		Now:         mapWeatherNow(src.Current),
+		Forecast:    mapWeatherForecastArray(src.Forecast.ForecastDay),
 		Timestamp:   &timestamp,
 		LastUpdated: &lastUpdated,
 	}
@@ -135,7 +222,7 @@ func (api *WeatherApi) GetForecast(country string, city string) (*models.Weather
 
 		if req, req_err := (&http.Client{}).Do(req_str); req_err == nil {
 
-			var forecast Forecast
+			var forecast Weather
 
 			r_data, r_data_err := io.ReadAll(req.Body)
 			defer req.Body.Close()
@@ -143,7 +230,7 @@ func (api *WeatherApi) GetForecast(country string, city string) (*models.Weather
 			if r_data_err == nil {
 
 				if json_err := json.Unmarshal(r_data, &forecast); json_err == nil {
-					return MapModel(&forecast), nil
+					return mapWeather(&forecast), nil
 				} else {
 					return nil, json_err
 				}

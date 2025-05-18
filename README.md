@@ -35,9 +35,32 @@ curl "https://test.website/now?country=Spain&city=Ibiza" -v
             "val": 62
         }
     },
+    "condition": "partial-rain",
     "stale": false,
     "updated": "2025-05-06T17:15:00Z"
 }
+```
+
+Possible values for the `condition` field (see also `/weather-images` directory):
+```
+blizzard
+clear (show 'sunny' or 'night', depends on the times of the day)
+clouds
+drizzle
+fog
+freezing-drizzle
+freezing-rain
+heavy-freezing-drizzle
+heavy-freezing-rain
+partial-rain
+partial-snow
+partial-sun
+rain
+rain-storm
+shower
+snow
+snow-storm
+storm
 ```
 
 > [!NOTE]

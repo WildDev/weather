@@ -3,6 +3,7 @@ package endpoints
 import (
 	"app/cmd/rest"
 	"app/cmd/services"
+	"log"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -12,12 +13,16 @@ type WeatherEndpoint struct {
 	Service *services.WeatherService
 }
 
-func (w *WeatherEndpoint) Init() {
+func (e *WeatherEndpoint) Init() {
 
 }
 
-func (w *WeatherEndpoint) Destroy() {
+func (e *WeatherEndpoint) Destroy() {
 
+}
+
+func (e *WeatherEndpoint) reportInternalServerError(c *gin.Context) {
+	c.JSON(http.StatusInternalServerError, rest.GlobalError{Error: "something went wrong"})
 }
 
 func (e *WeatherEndpoint) Now(c *gin.Context) {
@@ -42,26 +47,40 @@ func (e *WeatherEndpoint) Now(c *gin.Context) {
 	}
 
 	if w, w_err := e.Service.Now(country, city); w_err == nil {
+
+		now := w.Now
+		forecast := w.Forecast
+
+		if forecast == nil {
+
+			log.Println("No forecast data found!")
+			e.reportInternalServerError(c)
+
+			return
+		}
+
+		today := forecast[0].Day
+
 		c.JSON(http.StatusOK, gin.H{
 			"value": gin.H{
 				"c": gin.H{
-					"val": w.ValueC,
-					"min": w.MinValueC,
-					"max": w.MaxValueC,
+					"val": now.ValueC,
+					"min": today.MinValueC,
+					"max": today.MaxValueC,
 				},
 				"f": gin.H{
-					"val": w.ValueF,
-					"min": w.MinValueF,
-					"max": w.MaxValueF,
+					"val": now.ValueF,
+					"min": today.MinValueF,
+					"max": today.MaxValueF,
 				},
 			},
-			"updated": w.LastUpdated,
-			"stale":   w.Stale,
+			"condition": now.Condition,
+			"updated":   w.LastUpdated,
+			"stale":     w.Stale,
 		})
 	} else {
 
-		c.JSON(http.StatusInternalServerError, rest.GlobalError{Error: "something went wrong"})
-
+		e.reportInternalServerError(c)
 		panic(w_err)
 	}
 }
