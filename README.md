@@ -19,21 +19,22 @@ curl "https://test.website/now?country=Spain&city=Ibiza" -v
 < Content-Type: application/json
 <
 {
-    // Celsius
-    "c": {
-        "max": 17,
-        "min": 16,
-        "val": 18
-    },
-    
-    // Fahrenheit
-    "f": {
-        "max": 63,
-        "min": 60,
-        "val": 64
-    },
+    "value": {
 
-    //
+        // Celsius
+        "c": {
+            "max": 18,
+            "min": 13,
+            "val": 15
+        },
+
+        // Fahrenheit
+        "f": {
+            "max": 65,
+            "min": 60,
+            "val": 62
+        }
+    },
     "stale": false,
     "updated": "2025-05-06T17:15:00Z"
 }
