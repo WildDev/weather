@@ -198,17 +198,16 @@ func mapWeatherForecastArray(src []*WeatherForecast) []*models.WeatherForecast {
 	return r
 }
 
-func mapWeather(src *Weather) *models.Weather {
+func mapWeather(country string, city string, src *Weather) *models.Weather {
 
-	l := src.Location
 	c := src.Current
 
 	timestamp := time.Now()
 	lastUpdated := cmd.EpochToTime(c.LastUpdatedEpoch)
 
 	return &models.Weather{
-		Country:     l.Country,
-		City:        l.Region,
+		Country:     country,
+		City:        city,
 		Now:         mapWeatherNow(src.Current),
 		Forecast:    mapWeatherForecastArray(src.Forecast.ForecastDay),
 		Timestamp:   &timestamp,
@@ -222,7 +221,7 @@ func (api *WeatherApi) GetForecast(country string, city string) (*models.Weather
 
 		if req, req_err := (&http.Client{}).Do(req_str); req_err == nil {
 
-			var forecast Weather
+			var forecast *Weather
 
 			r_data, r_data_err := io.ReadAll(req.Body)
 			defer req.Body.Close()
@@ -230,7 +229,7 @@ func (api *WeatherApi) GetForecast(country string, city string) (*models.Weather
 			if r_data_err == nil {
 
 				if json_err := json.Unmarshal(r_data, &forecast); json_err == nil {
-					return mapWeather(&forecast), nil
+					return mapWeather(country, city, forecast), nil
 				} else {
 					return nil, json_err
 				}
