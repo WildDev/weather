@@ -19,7 +19,7 @@ type Weather struct {
 
 type WeatherLocation struct {
 	Country string `json:"country"`
-	City    string `json:"name"`
+	Region  string `json:"region"`
 }
 
 type WeatherCondition struct {
@@ -69,7 +69,7 @@ func (w *Weather) String() string {
 }
 
 func (w *WeatherLocation) String() string {
-	return fmt.Sprintf("Country=%s City=%s", w.Country, w.City)
+	return fmt.Sprintf("Country=%s Region=%s", w.Country, w.Region)
 }
 
 func (w *WeatherCondition) String() string {
@@ -208,7 +208,7 @@ func mapWeather(src *Weather) *models.Weather {
 
 	return &models.Weather{
 		Country:     l.Country,
-		City:        l.City,
+		City:        l.Region,
 		Now:         mapWeatherNow(src.Current),
 		Forecast:    mapWeatherForecastArray(src.Forecast.ForecastDay),
 		Timestamp:   &timestamp,
