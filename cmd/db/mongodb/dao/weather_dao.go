@@ -21,7 +21,7 @@ var indexes = []mongo.IndexModel{
 			{Key: "country", Value: 1},
 			{Key: "city", Value: 1},
 		},
-		Options: options.Index().SetName("country_1_city_1"),
+		Options: options.Index().SetName("country_1_city_1").SetUnique(true),
 	},
 }
 
@@ -47,14 +47,28 @@ func (dao *WeatherDao) createIndexes() {
 	}
 }
 
-func (dao *WeatherDao) Add(item models.Weather) (*models.Weather, error) {
+func createCountryAndCityFilter(country string, city string) *bson.D {
+	return &bson.D{
+		{Key: "country", Value: country},
+		{Key: "city", Value: city},
+	}
+}
 
-	if d, d_err := mappers.MapDoc(&item); d_err == nil {
+func (dao *WeatherDao) Upsert(item *models.Weather) (*models.Weather, error) {
 
-		if r, r_err := dao.Conn.Ref().Collection(collection).InsertOne(context.TODO(), d); r_err == nil {
+	if d, d_err := mappers.MapDoc(item); d_err == nil {
 
-			item.Id = r.InsertedID.(bson.ObjectID).Hex()
-			return &item, nil
+		opts := options.Replace().SetUpsert(true)
+
+		if r, r_err := dao.Conn.Ref().Collection(collection).ReplaceOne(context.TODO(), createCountryAndCityFilter(item.Country, item.City), d, opts); r_err == nil {
+
+			id := r.UpsertedID
+
+			if id != nil {
+				item.Id = id.(bson.ObjectID).Hex()
+			}
+
+			return item, nil
 		} else {
 			return nil, r_err
 		}
@@ -67,16 +81,12 @@ func (dao *WeatherDao) FindTopByCountryAndCityOrderByTimestamp(country string, c
 
 	var item *doc.Weather
 
-	filter := bson.D{
-		{Key: "country", Value: country},
-		{Key: "city", Value: city},
-	}
-
 	opts := options.FindOne().SetSort(bson.D{
 		{Key: "timestamp", Value: -1},
 	})
 
-	r := dao.Conn.Ref().Collection(collection).FindOne(context.TODO(), filter, opts)
+	r := dao.Conn.Ref().Collection(collection).FindOne(context.TODO(),
+		createCountryAndCityFilter(country, city), opts)
 
 	if err := r.Decode(&item); err == nil {
 		return mappers.MapModel(item), nil

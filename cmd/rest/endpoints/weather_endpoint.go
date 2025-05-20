@@ -49,17 +49,15 @@ func (e *WeatherEndpoint) Now(c *gin.Context) {
 	if w, w_err := e.Service.Now(country, city); w_err == nil {
 
 		now := w.Now
-		forecast := w.Forecast
+		today := w.Today
 
-		if forecast == nil {
+		if today == nil {
 
-			log.Println("No forecast data found!")
+			log.Println("No forecast data found for today!")
 			e.reportInternalServerError(c)
 
 			return
 		}
-
-		today := forecast[0].Day
 
 		c.JSON(http.StatusOK, gin.H{
 			"value": gin.H{

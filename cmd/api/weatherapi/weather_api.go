@@ -200,16 +200,28 @@ func mapWeatherForecastArray(src []*WeatherForecast) []*models.WeatherForecast {
 
 func mapWeather(country string, city string, src *Weather) *models.Weather {
 
+	var today *models.WeatherForecastDay = nil
+	var forecast []*models.WeatherForecast = nil
+
 	c := src.Current
 
 	timestamp := time.Now()
 	lastUpdated := cmd.EpochToTime(c.LastUpdatedEpoch)
 
+	if f := src.Forecast.ForecastDay; len(f) > 0 {
+
+		today = mapWeatherForecastDay(f[0].Day)
+		forecast = mapWeatherForecastArray(f[1:])
+	} else {
+		log.Println("No forecast data found!")
+	}
+
 	return &models.Weather{
 		Country:     country,
 		City:        city,
 		Now:         mapWeatherNow(src.Current),
-		Forecast:    mapWeatherForecastArray(src.Forecast.ForecastDay),
+		Today:       today,
+		Forecast:    forecast,
 		Timestamp:   &timestamp,
 		LastUpdated: &lastUpdated,
 	}

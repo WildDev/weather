@@ -10,6 +10,7 @@ type Weather struct {
 	Country     string
 	City        string
 	Now         *WeatherNow
+	Today       *WeatherForecastDay
 	Forecast    []*WeatherForecast
 	Timestamp   *time.Time
 	LastUpdated *time.Time
@@ -37,7 +38,7 @@ type WeatherForecastDay struct {
 }
 
 func (w *Weather) String() string {
-	return fmt.Sprintf("Id=%s Country=%s City=%s Now=(%v) Forecast=%v Timestamp=%v LastUpdated=%v Stale=%v", w.Id, w.Country, w.City, *w.Now, w.Forecast, *w.Timestamp, *w.LastUpdated, w.Stale)
+	return fmt.Sprintf("Id=%s Country=%s City=%s Now=(%v) Today=(%v) Forecast=%v Timestamp=%v LastUpdated=%v Stale=%v", w.Id, w.Country, w.City, *w.Now, *w.Today, w.Forecast, *w.Timestamp, *w.LastUpdated, w.Stale)
 }
 
 func (w *WeatherNow) String() string {

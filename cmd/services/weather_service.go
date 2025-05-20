@@ -37,7 +37,7 @@ func (service *WeatherService) Now(country string, city string) (*models.Weather
 
 					if r != nil && r.LastUpdated.Compare(*f.LastUpdated) >= 0 {
 						return r, nil
-					} else if k, k_err := service.Dao.Add(*f); k_err == nil {
+					} else if k, k_err := service.Dao.Upsert(f); k_err == nil {
 						return k, nil
 					} else {
 						return nil, k_err

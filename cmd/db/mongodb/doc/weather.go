@@ -8,13 +8,14 @@ import (
 )
 
 type Weather struct {
-	Id          *bson.ObjectID     `bson:"_id,omitempty"`
-	Country     string             `bson:"country,omitempty"`
-	City        string             `bson:"city,omitempty"`
-	Now         *WeatherNow        `bson:"now,omitempty"`
-	Forecast    []*WeatherForecast `bson:"forecast,omitempty"`
-	Timestamp   *time.Time         `bson:"timestamp,omitempty"`
-	LastUpdated *time.Time         `bson:"last_updated,omitempty"`
+	Id          *bson.ObjectID      `bson:"_id,omitempty"`
+	Country     string              `bson:"country,omitempty"`
+	City        string              `bson:"city,omitempty"`
+	Now         *WeatherNow         `bson:"now,omitempty"`
+	Today       *WeatherForecastDay `bson:"today,omitempty"`
+	Forecast    []*WeatherForecast  `bson:"forecast,omitempty"`
+	Timestamp   *time.Time          `bson:"timestamp,omitempty"`
+	LastUpdated *time.Time          `bson:"last_updated,omitempty"`
 }
 
 type WeatherNow struct {
@@ -46,8 +47,8 @@ func (w *Weather) GetIdAsString() string {
 }
 
 func (w *Weather) String() string {
-	return fmt.Sprintf("Id=%s Country=%s City=%s Now=%v Forecast=%v Timestamp=%v LastUpdated=%v",
-		w.GetIdAsString(), w.Country, w.City, *w.Now, w.Forecast, *w.Timestamp, *w.LastUpdated)
+	return fmt.Sprintf("Id=%s Country=%s City=%s Now=%v Today=%v Forecast=%v Timestamp=%v LastUpdated=%v",
+		w.GetIdAsString(), w.Country, w.City, *w.Now, *w.Today, w.Forecast, *w.Timestamp, *w.LastUpdated)
 }
 
 func (w *WeatherNow) String() string {
