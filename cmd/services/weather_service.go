@@ -23,6 +23,30 @@ func (service *WeatherService) Destroy() {
 
 }
 
+func scaleMinMax(item *models.Weather) {
+
+	value_c := item.Now.ValueC
+	value_f := item.Now.ValueF
+
+	today := item.Today
+
+	if value_c < today.MinValueC {
+		today.MinValueC = value_c
+	}
+
+	if value_c > today.MaxValueC {
+		today.MaxValueC = value_c
+	}
+
+	if value_f < today.MinValueF {
+		today.MinValueF = value_f
+	}
+
+	if value_f > today.MaxValueF {
+		today.MaxValueF = value_f
+	}
+}
+
 func (service *WeatherService) Now(country string, city string) (*models.Weather, error) {
 
 	if r, r_err := service.Dao.FindTopByCountryAndCityOrderByTimestamp(country, city); r_err == nil {
@@ -37,10 +61,15 @@ func (service *WeatherService) Now(country string, city string) (*models.Weather
 
 					if r != nil && r.LastUpdated.Compare(*f.LastUpdated) >= 0 {
 						return r, nil
-					} else if k, k_err := service.Dao.Upsert(f); k_err == nil {
-						return k, nil
 					} else {
-						return nil, k_err
+
+						scaleMinMax(f)
+
+						if k, k_err := service.Dao.Upsert(f); k_err == nil {
+							return k, nil
+						} else {
+							return nil, k_err
+						}
 					}
 
 				} else {
