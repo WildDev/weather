@@ -122,7 +122,7 @@ func mapConditionCode(code int) string {
 	case 1000:
 		return "clear"
 	case 1003, 1006:
-		return "partial-sun"
+		return "partial-clear"
 	case 1009:
 		return "clouds"
 	case 1030, 1135:
