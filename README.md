@@ -52,9 +52,9 @@ freezing-drizzle
 freezing-rain
 heavy-freezing-drizzle
 heavy-freezing-rain
-partial-rain
-partial-snow
-partial-sun
+partial-clear (show 'partial-clear-day/night')
+partial-rain (show 'partial-rain-day/night')
+partial-snow (show 'partial-snow-day/night')
 rain
 rain-storm
 shower
