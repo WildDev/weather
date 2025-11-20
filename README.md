@@ -97,3 +97,15 @@ TLS_USE='false'
 ```
 
 Also available on [Docker Hub](https://hub.docker.com/r/wilddev/weather)
+
+### License
+
+*This project is licensed under the Apache License 2.0.*
+
+Dependencies:
+
+- Gin (MIT) - https://gin-gonic.com
+- MongoDB Go Driver - https://www.mongodb.com/docs/drivers/go/current
+
+See [LICENSE](LICENSE) and [NOTICE](NOTICE) files for details.
+
