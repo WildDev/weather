@@ -105,7 +105,7 @@ Also available on [Docker Hub](https://hub.docker.com/r/wilddev/weather)
 Dependencies:
 
 - Gin (MIT) - https://gin-gonic.com
-- MongoDB Go Driver - https://www.mongodb.com/docs/drivers/go/current
+- MongoDB Go Driver (Apache 2.0) - https://www.mongodb.com/docs/drivers/go/current
 
 See [LICENSE](LICENSE) and [NOTICE](NOTICE) files for details.
 
